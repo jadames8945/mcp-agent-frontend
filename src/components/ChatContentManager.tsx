@@ -34,9 +34,6 @@ const ChatContentManager: React.FC<ChatContentManagerProps> = ({
   return (
     <ChatContainer
       messages={messages}
-      streamingContent={streamingContent}
-      streamingAgent={streamingAgent}
-      isLoading={isLoading}
     />
   );
 };

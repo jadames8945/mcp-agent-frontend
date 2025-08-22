@@ -9,6 +9,7 @@ import {
 import { Message } from "@/types";
 import { useChatStore } from "@/stores/chatStore";
 import { THEME } from "@/utils/constants";
+import MarkdownMessage from "./MarkdownMessage";
 
 interface MessageManagerProps {
   messages: Message[];
@@ -45,6 +46,7 @@ export default function MessageManager({
         width: '100%',
       }}
     >
+      
       {messages.length === 0 && !streamingContent && (
         <Box
           sx={{
@@ -192,21 +194,34 @@ export default function MessageManager({
                       },
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{
-                  whiteSpace: 'pre-wrap',
-                  textAlign: 'left',
+              {message.type === 'user' ? (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    textAlign: 'left',
+                    fontSize: '15px',
+                    lineHeight: 1.6,
+                    fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
+                    fontWeight: 400,
+                    color: '#ffffff',
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {message.content}
+                </Typography>
+              ) : (
+                <Box sx={{
                   fontSize: '15px',
                   lineHeight: 1.6,
                   fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
                   fontWeight: 400,
-                  color: message.type === 'user' ? '#ffffff' : '#2c3e50',
+                  color: '#2c3e50',
                   letterSpacing: '0.01em',
-                }}
-              >
-                {message.content}
-              </Typography>
+                }}>
+                  <MarkdownMessage content={message.content} />
+                </Box>
+              )}
               <Typography
                 variant="caption"
                 sx={{
@@ -282,18 +297,13 @@ export default function MessageManager({
                   Generating response...
                 </Typography>
               </Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  whiteSpace: "pre-wrap",
-                  textAlign: "left",
-                  color: "#2c3e50",
-                  fontSize: "15px",
-                  lineHeight: 1.6,
-                  fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
-                }}
-              >
-                {streamingContent}
+              <Box sx={{
+                color: "#2c3e50",
+                fontSize: "15px",
+                lineHeight: 1.6,
+                fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
+              }}>
+                <MarkdownMessage content={streamingContent} />
                 <span
                   style={{
                     animation: "blink 1s infinite",
@@ -303,7 +313,7 @@ export default function MessageManager({
                 >
                   |
                 </span>
-              </Typography>
+              </Box>
             </Paper>
           </Box>
         </Box>
