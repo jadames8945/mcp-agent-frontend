@@ -21,4 +21,8 @@ export const mcpAPI = {
   getWebSocketUrl(sessionId: string): string {
     return `${BASE_URL.replace('http', 'ws')}/tool-summary/ws/${sessionId}`;
   },
+
+  getChatWebSocketUrl(sessionId: string): string {
+    return `${BASE_URL.replace('http', 'ws')}/chat/ws/${sessionId}`;
+  },
 }; 

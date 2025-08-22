@@ -1,7 +1,7 @@
-import { useCallback, useRef, useEffect } from 'react';
-import { MultiMCPConfig } from '@/types/mcpConfig';
-import { mcpAPI } from '@/api';
+import { useCallback, useEffect, useRef } from 'react';
 import { useChatStore } from '@/stores/chatStore';
+import { MultiMCPConfig } from '@/types';
+import { mcpAPI } from '@/api/mcp';
 
 export default function useWebSocket(onMessage: (message: any) => void) {
   const wsRef = useRef<WebSocket | null>(null);
@@ -28,6 +28,7 @@ export default function useWebSocket(onMessage: (message: any) => void) {
         setConnected(true);
         setSessionId(sessionId);
         setWebSocket(websocket);
+        wsRef.current = websocket;
       };
 
       websocket.onmessage = (event) => {
@@ -76,6 +77,10 @@ export default function useWebSocket(onMessage: (message: any) => void) {
 
   const sendMessage = useCallback(
     (message: string, config: MultiMCPConfig) => {
+      console.log('📤 Attempting to send message via WebSocket');
+      console.log('📤 WebSocket ref state:', wsRef.current?.readyState);
+      console.log('📤 WebSocket connected state:', useChatStore.getState().isConnected);
+      
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         const messageData = {
           user_input: message,
@@ -83,6 +88,10 @@ export default function useWebSocket(onMessage: (message: any) => void) {
         };
         console.log('📤 Sending WebSocket message:', messageData);
         wsRef.current.send(JSON.stringify(messageData));
+        return true;
+      } else {
+        console.error('❌ WebSocket not ready. State:', wsRef.current?.readyState);
+        return false;
       }
     },
     [],
