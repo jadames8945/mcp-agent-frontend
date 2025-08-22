@@ -1,38 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Alert,
-  IconButton,
-  Paper,
-  Container,
-  Button,
-  TextField,
-  InputAdornment,
-  CircularProgress,
-  Grid,
-  Card,
-  CardContent,
-  Chip,
-} from '@mui/material';
-import {
-  Close as CloseIcon,
-  Search as SearchIcon,
-  Add as AddIcon,
-  Chat as ChatIcon,
-} from '@mui/icons-material';
+import { Box, Container, Paper } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useMCPStore } from '@/stores/mcpStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useChatStore } from '@/stores/chatStore';
-import { Header } from '@/components';
+import { Header, DashboardHeader, MCPInfoTooltip, SearchBar, ConfigurationsSection } from '@/components';
 import ConfigCreationModal from '@/components/ConfigCreationModal';
-import { THEME, BRAND } from '@/utils/constants';
 import { configAPI } from '@/api';
 import { MultiMCPConfig, Transport } from '@/types/mcpConfig';
-import ConfigCard from '@/components/ConfigCard';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -43,12 +20,7 @@ export default function DashboardPage() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [editingConfig, setEditingConfig] = useState<MultiMCPConfig | null>(null);
   
-  const {
-    error,
-    setError,
-    clearError,
-  } = useMCPStore();
-
+  const { error, setError, clearError } = useMCPStore();
   const { user, logout, isHydrated, initializeAuth } = useAuthStore();
 
   useEffect(() => {
@@ -76,14 +48,11 @@ export default function DashboardPage() {
     if (!user) return;
     
     setIsLoadingConfigs(true);
-    console.log('Loading configs for user:', user.id);
     
     try {
       const userConfigs = await configAPI.getConfigs(user.id);
-      console.log('Configs loaded successfully:', userConfigs);
       
       if (userConfigs.length === 0) {
-        console.log('No configs found, creating default config...');
         const defaultConfig: MultiMCPConfig = {
           user_id: user.id,
           name: 'Default Configuration',
@@ -99,58 +68,47 @@ export default function DashboardPage() {
           ]
         };
         
-        console.log('Creating default config via API:', defaultConfig);
-        
-        try {
-          const createdConfig = await configAPI.createConfig(defaultConfig);
-          console.log('Default config created successfully:', createdConfig);
-          setConfigs([createdConfig]);
-        } catch (createError) {
-          console.error('Failed to create default config:', createError);
-          setError('Failed to create default configuration');
-          setConfigs([]);
-        }
+        const createdConfig = await configAPI.createConfig(defaultConfig);
+        setConfigs([createdConfig]);
       } else {
         setConfigs(userConfigs);
       }
     } catch (error) {
       console.error('Failed to load configs:', error);
-      if (error instanceof Error) {
-        setError(`Failed to load configurations: ${error.message}`);
-      } else {
-        setError('Failed to load configurations');
-      }
+      setError('Failed to load configurations');
     } finally {
       setIsLoadingConfigs(false);
     }
   };
 
-  const handleConfigSelect = (config: MultiMCPConfig) => {
-    useChatStore.getState().closeWebSocket();
-    router.push(`/chat?config=${config.id}`);
+  const handleConfigSelect = async (config: MultiMCPConfig) => {
+    try {
+      useChatStore.getState().closeWebSocket();
+      router.push(`/chat?config=${config.id}`);
+    } catch (error) {
+      console.error('Failed to navigate to chat:', error);
+    }
   };
 
-  const handleCreateConfig = async (newConfig: MultiMCPConfig) => {
+  const handleCreateConfig = async (configData: Partial<MultiMCPConfig>) => {
     if (!user) return;
     
     try {
-      if (editingConfig && editingConfig.id) {
-        await configAPI.updateConfig(editingConfig.id, {
-          ...newConfig,
-          user_id: user.id,
-        });
+      const configWithUser = {
+        ...configData,
+        user_id: user.id,
+        connections: configData.connections || []
+      };
+      
+      if (editingConfig) {
+        await configAPI.updateConfig(editingConfig.id!, configWithUser);
       } else {
-        await configAPI.createConfig({
-          ...newConfig,
-          user_id: user.id,
-        });
+        await configAPI.createConfig(configWithUser as MultiMCPConfig);
       }
       
-      await loadConfigs();
-      
-      if (!editingConfig) {
-        router.push(`/chat?config=${newConfig.id}`);
-      }
+      setIsConfigModalOpen(false);
+      setEditingConfig(null);
+      loadConfigs();
     } catch (error) {
       console.error('Failed to save config:', error);
       setError('Failed to save configuration');
@@ -160,7 +118,7 @@ export default function DashboardPage() {
   const handleDeleteConfig = async (configId: string) => {
     try {
       await configAPI.deleteConfig(configId);
-      await loadConfigs();
+      loadConfigs();
     } catch (error) {
       console.error('Failed to delete config:', error);
       setError('Failed to delete configuration');
@@ -185,121 +143,69 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <Typography>Checking authentication...</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <span>Checking authentication...</span>
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <span>Loading user...</span>
       </Box>
     );
   }
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        backgroundColor: THEME.colors.background,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {user && (
-        <Header
-          user={user}
-          isConnected={false}
-          onLogout={handleLogout}
-          onToggleSidePanel={() => {}}
-        />
-      )}
+    <Box sx={{ height: '100vh', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'column' }}>
+      <Header
+        user={user}
+        isConnected={false}
+        onLogout={handleLogout}
+        onToggleSidePanel={() => {}}
+      />
 
-      <Container maxWidth="xl" sx={{ flex: 1, py: 4 }}>
-        <Typography variant="h3" sx={{ mb: 3, color: THEME.colors.primary }}>
-          MCP Server Dashboard
-        </Typography>
+      <Container maxWidth="xl" sx={{ flex: 1, py: 6 }}>
+        <DashboardHeader username={user.username} />
         
-        <Typography variant="body1" sx={{ mb: 4, color: THEME.colors.secondary, maxWidth: '600px' }}>
-          Welcome back, {user?.username}! Select a configuration to start chatting with your MCP tools.
-        </Typography>
-
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" sx={{ color: THEME.colors.primary }}>
-            Saved Configurations
-          </Typography>
-          
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setIsConfigModalOpen(true)}
-            sx={{
-              backgroundColor: BRAND.primary,
-              color: 'white',
-              '&:hover': {
-                backgroundColor: BRAND.primaryDark,
-              },
-            }}
-          >
-            Create New Config
-          </Button>
-        </Box>
-
-        <TextField
-          fullWidth
-          placeholder="Search configurations..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+        <Paper
+          elevation={0}
+          sx={{
+            background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
+            borderRadius: '24px',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+            overflow: 'hidden',
+            position: 'relative',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.06) 50%, transparent 100%)',
+            }
           }}
-          sx={{ mb: 3 }}
-        />
-
-        {isLoadingConfigs ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress size={60} />
+        >
+          <Box sx={{ p: 6 }}>
+            <SearchBar 
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+            
+            <ConfigurationsSection
+              configs={configs}
+              searchTerm={searchTerm}
+              isLoading={isLoadingConfigs}
+              onCreateConfig={() => setIsConfigModalOpen(true)}
+              onSelectConfig={handleConfigSelect}
+              onDeleteConfig={handleDeleteConfig}
+              onEditConfig={handleEditConfig}
+            />
           </Box>
-        ) : configs.length === 0 ? (
-          <Paper
-            sx={{
-              p: 4,
-              textAlign: 'center',
-              backgroundColor: THEME.colors.white,
-              border: `1px solid ${THEME.colors.border}`,
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2, color: THEME.colors.secondary }}>
-              No configurations found
-            </Typography>
-            <Typography variant="body2" sx={{ color: THEME.colors.secondary }}>
-              Create your first MCP configuration to get started
-            </Typography>
-          </Paper>
-        ) : (
-          <Grid container spacing={3}>
-            {configs
-              .filter(config => 
-                config.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                config.description?.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-              .map((config, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <ConfigCard
-                    config={config}
-                    onSelect={handleConfigSelect}
-                    onDelete={handleDeleteConfig}
-                    onEdit={handleEditConfig}
-                  />
-                </Grid>
-              ))}
-          </Grid>
-        )}
+        </Paper>
       </Container>
 
       <ConfigCreationModal
@@ -311,31 +217,6 @@ export default function DashboardPage() {
         onSubmit={handleCreateConfig}
         editingConfig={editingConfig}
       />
-
-      {error && (
-        <Alert
-          severity="error"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={clearError}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 1001,
-            maxWidth: '400px',
-          }}
-        >
-          {error}
-        </Alert>
-      )}
     </Box>
   );
 } 

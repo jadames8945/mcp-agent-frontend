@@ -1,45 +1,16 @@
-import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, CardActionArea, TextField, IconButton } from '@mui/material';
-import { Send as SendIcon } from '@mui/icons-material';
+import React from 'react';
+import { Box, Typography, Grid, Card, CardContent, CardActionArea } from '@mui/material';
 import { THEME, ACTION_CARDS } from '@/utils/constants';
 
 interface WelcomeContainerProps {
   userName: string;
-  messages: any[];
   onSuggestionClick: (suggestion: string) => void;
-  onSendMessage: (message: string) => Promise<void>;
 }
 
 const WelcomeContainer: React.FC<WelcomeContainerProps> = ({ 
   userName, 
-  messages, 
-  onSuggestionClick,
-  onSendMessage
+  onSuggestionClick
 }) => {
-  const [inputValue, setInputValue] = useState('');
-
-  if (messages.length > 0) {
-    return null;
-  }
-
-  const handleSend = async () => {
-    if (!inputValue.trim()) return;
-    
-    try {
-      await onSendMessage(inputValue.trim());
-      setInputValue('');
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
-  };
-
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSend();
-    }
-  };
-
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -98,158 +69,53 @@ const WelcomeContainer: React.FC<WelcomeContainerProps> = ({
                     transform: 'translateY(-2px)',
                   },
                 }}
-                onClick={() => onSuggestionClick(card.action)}
               >
-                <CardContent sx={{ 
-                  p: 3, 
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between'
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                    <Box sx={{ 
-                      fontSize: '2rem',
-                      lineHeight: 1
-                    }}>
-                      {card.icon}
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
+                <CardActionArea
+                  onClick={() => onSuggestionClick(card.action)}
+                  sx={{ height: '100%', p: 0 }}
+                >
+                  <CardContent sx={{ 
+                    p: 3, 
+                    height: '100%', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{ 
+                        fontSize: '2rem',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        {card.icon}
+                      </Box>
                       <Typography 
                         variant="h6" 
                         sx={{ 
-                          color: THEME.colors.primary,
-                          fontWeight: 600,
-                          mb: 1,
+                          fontWeight: 600, 
+                          color: '#333',
                           fontSize: '1.1rem'
                         }}
                       >
                         {card.title}
                       </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: THEME.colors.secondary,
-                          lineHeight: 1.4,
-                          fontSize: '0.9rem'
-                        }}
-                      >
-                        {card.description}
-                      </Typography>
                     </Box>
-                  </Box>
-                </CardContent>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: '#666',
+                        lineHeight: 1.4,
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      {card.description}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
               </Card>
             </Grid>
           ))}
         </Grid>
-      </Box>
-
-      <Box sx={{ 
-        mt: 'auto',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '24px',
-        padding: '20px',
-        border: '1px solid #E8E8E8',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
-      }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <TextField
-            multiline
-            maxRows={4}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message here..."
-            variant="standard"
-            fullWidth
-            sx={{
-              '& .MuiInput-root': {
-                '&:before': { display: 'none' },
-                '&:after': { display: 'none' },
-                '& input': {
-                  color: '#000000',
-                  fontSize: '16px',
-                  padding: '12px 0',
-                },
-                '& textarea': {
-                  color: '#000000',
-                  fontSize: '16px',
-                  padding: '12px 0',
-                  resize: 'none',
-                },
-              },
-              '& .MuiInputBase-root': {
-                padding: 0,
-              },
-            }}
-          />
-
-          {inputValue.trim() && (
-            <IconButton
-              onClick={handleSend}
-              sx={{
-                backgroundColor: THEME.colors.primary,
-                color: 'white',
-                width: '48px',
-                height: '48px',
-                flexShrink: 0,
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  backgroundColor: THEME.colors.primaryDark,
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
-                },
-                '&:active': {
-                  transform: 'translateY(0)',
-                },
-              }}
-            >
-              <SendIcon sx={{ fontSize: '20px' }} />
-            </IconButton>
-          )}
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mt: 2,
-            pt: 2,
-            borderTop: '1px solid #F0F0F0'
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#999',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5
-              }}
-            >
-              💡
-            </Typography>
-          </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              color: '#999',
-              fontSize: '12px',
-            }}
-          >
-            Press Enter to send, Shift+Enter for new line
-          </Typography>
-        </Box>
       </Box>
     </Box>
   );

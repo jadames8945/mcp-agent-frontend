@@ -198,18 +198,43 @@ export default function ServerManager({ connections, onConnectionsChange }: Serv
               >
                 <ListItemText
                   primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                      {getConnectionStatusIcon(connection.connected)}
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {connection.name}
-                      </Typography>
-                      <Chip
-                        label={connection.transport}
-                        size="small"
-                        variant="outlined"
-                        color={getConnectionStatusColor(connection.connected)}
-                        sx={{ fontSize: '0.7rem', height: '20px' }}
-                      />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {getConnectionStatusIcon(connection.connected)}
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                          {connection.name}
+                        </Typography>
+                        <Chip
+                          label={connection.transport}
+                          size="small"
+                          variant="outlined"
+                          color={getConnectionStatusColor(connection.connected)}
+                          sx={{ fontSize: '0.7rem', height: '20px' }}
+                        />
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Switch
+                          checked={connection.connected}
+                          onChange={() => handleToggleConnection(connection.name)}
+                          color="success"
+                          size="small"
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => openEditDialog(connection)}
+                          sx={{ color: 'primary.main' }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteServer(connection.name)}
+                          sx={{ color: 'error.main' }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
                   }
                   secondary={
@@ -223,31 +248,6 @@ export default function ServerManager({ connections, onConnectionsChange }: Serv
                     </Box>
                   }
                 />
-                
-                <ListItemSecondaryAction>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 'fit-content' }}>
-                    <Switch
-                      checked={connection.connected}
-                      onChange={() => handleToggleConnection(connection.name)}
-                      color="success"
-                      size="small"
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={() => openEditDialog(connection)}
-                      sx={{ color: 'primary.main' }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteServer(connection.name)}
-                      sx={{ color: 'error.main' }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </ListItemSecondaryAction>
               </ListItem>
             ))}
           </List>

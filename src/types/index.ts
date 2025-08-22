@@ -25,8 +25,12 @@ export interface ToolDisplayProps {
 }
 
 export interface ToolSummary {
-  name: string;
+  tool_name: string;
   description: string;
-  server: string;
-  parameters?: any;
+  parameters: Parameter[];
+}
+
+export interface Parameter {
+  param_name: string;
+  type: string;
 } 

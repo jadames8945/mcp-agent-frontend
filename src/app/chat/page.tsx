@@ -11,8 +11,8 @@ import { mcpAPI, configAPI } from '@/api';
 import { THEME } from '@/utils/constants';
 import Header from '@/components/Header';
 import SidePanel from '@/components/SidePanel';
-import WelcomeContainer from '@/components/WelcomeContainer';
-import ChatContainer from '@/components/ChatContainer';
+import ChatContentManager from '@/components/ChatContentManager';
+import ChatInput from '@/components/ChatInput';
 import MCPToolsContainer from '@/components/MCPToolsContainer';
 
 export default function ChatPage() {
@@ -62,8 +62,6 @@ export default function ChatPage() {
       loadConfig();
     }
   }, [configId, user]);
-
-
 
   useEffect(() => {
     if (selectedConfig && user) {
@@ -238,25 +236,25 @@ export default function ChatPage() {
             minWidth: { xs: '400px', sm: '500px' },
           }}
         >
-          {messages.length === 0 ? (
-            <WelcomeContainer
-              userName={user?.username || 'User'}
+          <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <ChatContentManager
               messages={messages}
+              userName={user?.username || 'User'}
               onSuggestionClick={(suggestion: string) => {
                 if (isConnected) {
                   handleSendMessage(suggestion);
                 }
               }}
-              onSendMessage={handleSendMessage}
+              streamingContent={streamingContent}
+              streamingAgent={streamingAgent}
+              isLoading={isLoading}
             />
-          ) : (
-            <ChatContainer
-              messages={messages}
+            <ChatInput
               onSendMessage={handleSendMessage}
               isConnected={isConnected}
-              userName={user?.username}
+              isLoading={isLoading}
             />
-          )}
+          </Box>
         </Paper>
         
         <Paper
@@ -277,9 +275,9 @@ export default function ChatPage() {
           <MCPToolsContainer
             tools={tools}
             connections={selectedConfig?.connections || []}
-            onToolSelect={(tool: any) => {
-              handleSendMessage(`Use the ${tool.name} tool`);
-            }}
+            onToolSelect={(tool: any) => (
+              handleSendMessage(`Use the ${tool.tool_name} tool`)
+            )}
             onConnectionsChange={(connections) => {
               if (selectedConfig) {
                 const updatedConfig = { ...selectedConfig, connections };
