@@ -53,20 +53,21 @@ export default function MCPInfoTooltip() {
           gap: 1,
           p: 2,
           borderRadius: '12px',
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
+          backgroundColor: 'rgba(0, 0, 0, 0.08)',
+          border: '1px solid rgba(0, 0, 0, 0.15)',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            borderColor: 'rgba(255, 255, 255, 0.3)',
+            backgroundColor: 'rgba(0, 0, 0, 0.12)',
+            borderColor: 'rgba(0, 0, 0, 0.25)',
             transform: 'translateY(-1px)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           }
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <InfoIcon sx={{ fontSize: '1.2rem', color: 'rgba(255, 255, 255, 0.9)' }} />
-        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.9)' }}>
+        <InfoIcon sx={{ fontSize: '1.2rem', color: '#2C3E50' }} />
+        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.9rem', color: '#2C3E50' }}>
           What is MCP?
         </Typography>
       </Box>

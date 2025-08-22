@@ -10,13 +10,19 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Button,
 } from '@mui/material';
 import {
   Logout as LogoutIcon,
   Person as PersonIcon,
   AccountCircle as AccountIcon,
   Settings as SettingsIcon,
+  ArrowBack as ArrowBackIcon,
+  Home as HomeIcon,
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
+import { useChatStore } from '@/stores/chatStore';
+import { useMCPStore } from '@/stores/mcpStore';
 import { User } from '@/types/ui';
 import { THEME, BRAND } from '@/utils/constants';
 import Logo from './Logo';
@@ -26,9 +32,14 @@ interface HeaderProps {
   isConnected: boolean;
   onLogout: () => void;
   onToggleSidePanel: () => void;
+  showBackButton?: boolean;
+  showHomeButton?: boolean;
 }
 
-export default function Header({ user, isConnected, onLogout, onToggleSidePanel }: HeaderProps) {
+export default function Header({ user, isConnected, onLogout, onToggleSidePanel, showBackButton = false, showHomeButton = false }: HeaderProps) {
+  const router = useRouter();
+  const { clearForNavigation: clearChatStore } = useChatStore();
+  const { clearForNavigation: clearMCPStore } = useMCPStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -45,13 +56,25 @@ export default function Header({ user, isConnected, onLogout, onToggleSidePanel 
     onLogout();
   };
 
+  const handleBackToDashboard = () => {
+    clearChatStore();
+    clearMCPStore();
+    router.push('/dashboard');
+  };
+
+  const handleHomeClick = () => {
+    clearChatStore();
+    clearMCPStore();
+    router.push('/dashboard');
+  };
+
   return (
     <Paper
       elevation={0}
       sx={{
         width: '100%',
         height: THEME.dimensions.headerHeight,
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
         borderRadius: 0,
         display: 'flex',
         flexDirection: 'row',
@@ -65,6 +88,7 @@ export default function Header({ user, isConnected, onLogout, onToggleSidePanel 
         border: 'none',
         overflow: 'hidden',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+        backdropFilter: 'blur(10px)',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -81,12 +105,45 @@ export default function Header({ user, isConnected, onLogout, onToggleSidePanel 
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 50%)',
+          background: 'radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.9) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 50%)',
           pointerEvents: 'none',
         }
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', paddingLeft: 2, position: 'relative', zIndex: 1 }}>
+        {showBackButton && (
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={handleBackToDashboard}
+            sx={{
+              mr: 2,
+              color: '#666',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+              },
+            }}
+          >
+            Dashboard
+          </Button>
+        )}
+        {showHomeButton && (
+          <Button
+            startIcon={<HomeIcon />}
+            onClick={handleHomeClick}
+            sx={{
+              mr: 2,
+              color: '#86BC24',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'rgba(134, 188, 36, 0.08)',
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Dashboard
+          </Button>
+        )}
         <Box>
           <Logo size="large" variant={isConnected ? 'chat' : 'dashboard'} isConnected={isConnected} />
         </Box>

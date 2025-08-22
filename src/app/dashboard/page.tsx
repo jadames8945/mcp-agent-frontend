@@ -44,6 +44,11 @@ export default function DashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    useChatStore.getState().clearForNavigation();
+    useMCPStore.getState().clearForNavigation();
+  }, []);
+
   const loadConfigs = async () => {
     if (!user) return;
     
@@ -172,12 +177,13 @@ export default function DashboardPage() {
         <Paper
           elevation={0}
           sx={{
-            background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 250, 250, 0.9) 100%)',
             borderRadius: '24px',
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03)',
             overflow: 'hidden',
             position: 'relative',
+            backdropFilter: 'blur(10px)',
             '&::before': {
               content: '""',
               position: 'absolute',
@@ -185,7 +191,7 @@ export default function DashboardPage() {
               left: 0,
               right: 0,
               height: '1px',
-              background: 'linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.06) 50%, transparent 100%)',
+              background: 'linear-gradient(90deg, transparent 0%, rgba(134, 188, 36, 0.2) 50%, transparent 100%)',
             }
           }}
         >

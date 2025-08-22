@@ -43,6 +43,7 @@ interface MCPState {
   clearError: () => void;
   clearForNewChat: () => void;
   clearForLogout: () => void;
+  clearForNavigation: () => void;
 }
 
 export const useMCPStore = create<MCPState>((set, get) => ({
@@ -180,6 +181,21 @@ export const useMCPStore = create<MCPState>((set, get) => ({
       sessionId: null,
       configs: [],
       selectedConfig: null,
+      tools: {},
+      isLoading: false,
+      error: null,
+      streamingContent: "",
+      streamingAgent: "",
+    });
+  },
+
+  clearForNavigation: () => {
+    set({
+      messages: [],
+      currentChatId: null,
+      showChatInterface: false,
+      isConnected: false,
+      sessionId: null,
       tools: {},
       isLoading: false,
       error: null,

@@ -174,6 +174,8 @@ export default function ChatPage() {
   useEffect(() => {
     return () => {
       useChatStore.getState().closeWebSocket();
+      useChatStore.getState().clearForNavigation();
+      useMCPStore.getState().clearForNavigation();
     };
   }, []);
 
@@ -201,6 +203,7 @@ export default function ChatPage() {
           isConnected={isConnected}
           onLogout={handleLogout}
           onToggleSidePanel={toggleSidePanel}
+          showBackButton={true}
         />
       )}
       

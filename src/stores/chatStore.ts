@@ -23,6 +23,7 @@ interface ChatState {
   clearStore: () => void;
   clearForNewChat: () => void;
   clearForLogout: () => void;
+  clearForNavigation: () => void;
   setWebSocket: (ws: WebSocket | null) => void;
   closeWebSocket: () => void;
 }
@@ -146,6 +147,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({
       messages: [],
       isConnected: false,
+      error: null,
+      isLoading: false,
+      streamingContent: '',
+      streamingAgent: '',
+      websocket: null,
+      sessionId: null,
+    });
+  },
+
+  clearForNavigation: () => {
+    const { websocket } = get();
+    if (websocket) {
+      websocket.close();
+    }
+    set({
+      messages: [],
       error: null,
       isLoading: false,
       streamingContent: '',
