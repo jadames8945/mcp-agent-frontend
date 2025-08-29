@@ -1,11 +1,15 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
   Paper,
   Avatar,
   CircularProgress,
+  Fab,
 } from "@mui/material";
+import {
+  KeyboardArrowUp as KeyboardArrowUpIcon,
+} from "@mui/icons-material";
 import { Message } from "@/types";
 import { useChatStore } from "@/stores/chatStore";
 import { THEME } from "@/utils/constants";
@@ -25,6 +29,7 @@ export default function MessageManager({
   isLoading,
 }: MessageManagerProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -34,16 +39,41 @@ export default function MessageManager({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    setShowScrollTop(target.scrollTop > 200);
+  };
+
+  const scrollToTop = () => {
+    const scrollContainer = document.querySelector('[data-scroll-container]');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <Box
+      onScroll={handleScroll}
       sx={{
-        flex: 1,
-        overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        minHeight: 0,
         width: '100%',
+        scrollBehavior: 'smooth',
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'rgba(0, 0, 0, 0.05)',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '4px',
+          '&:hover': {
+            background: 'rgba(0, 0, 0, 0.3)',
+          },
+        },
       }}
     >
       
@@ -377,6 +407,31 @@ export default function MessageManager({
       )}
 
       <div ref={messagesEndRef} />
+      
+      {showScrollTop && (
+        <Fab
+          size="small"
+          onClick={scrollToTop}
+          sx={{
+            position: 'fixed',
+            bottom: 100,
+            right: 20,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: '#2C3E50',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 1)',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
+            },
+            transition: 'all 0.2s ease',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+          }}
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      )}
     </Box>
   );
 } 

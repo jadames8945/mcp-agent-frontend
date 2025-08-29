@@ -203,7 +203,6 @@ export default function ChatPage() {
           isConnected={isConnected}
           onLogout={handleLogout}
           onToggleSidePanel={toggleSidePanel}
-          showBackButton={true}
         />
       )}
       
@@ -239,19 +238,21 @@ export default function ChatPage() {
             minWidth: { xs: '400px', sm: '500px' },
           }}
         >
-          <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <ChatContentManager
-              messages={messages}
-              userName={user?.username || 'User'}
-              onSuggestionClick={(suggestion: string) => {
-                if (isConnected) {
-                  handleSendMessage(suggestion);
-                }
-              }}
-              streamingContent={streamingContent}
-              streamingAgent={streamingAgent}
-              isLoading={isLoading}
-            />
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <Box sx={{ flex: 1, overflow: 'auto', minHeight: 0 }} data-scroll-container>
+              <ChatContentManager
+                messages={messages}
+                userName={user?.username || 'User'}
+                onSuggestionClick={(suggestion: string) => {
+                  if (isConnected) {
+                    handleSendMessage(suggestion);
+                  }
+                }}
+                streamingContent={streamingContent}
+                streamingAgent={streamingAgent}
+                isLoading={isLoading}
+              />
+            </Box>
             <ChatInput
               onSendMessage={handleSendMessage}
               isConnected={isConnected}

@@ -23,14 +23,12 @@ export default function ChatContainer({ messages }: ChatContainerProps) {
         p: 4,
       }}
     >
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
-        <MessageManager
-          messages={messages}
-          streamingContent={streamingContent}
-          streamingAgent={streamingAgent}
-          isLoading={isLoading}
-        />
-      </Box>
+      <MessageManager
+        messages={messages}
+        streamingContent={streamingContent}
+        streamingAgent={streamingAgent}
+        isLoading={isLoading}
+      />
     </Box>
   );
 } 
