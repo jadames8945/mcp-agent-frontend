@@ -124,8 +124,8 @@ coverage/
 *.bak
 *.tmp
 
-# Lock files (uncomment if you want to ignore them)
-# package-lock.json
+# Lock files - using Yarn, ignore npm lock
+package-lock.json
 # yarn.lock
 
 # Build artifacts
