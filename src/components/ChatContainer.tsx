@@ -9,7 +9,7 @@ interface ChatContainerProps {
 }
 
 export default function ChatContainer({ messages }: ChatContainerProps) {
-  const { streamingContent, streamingAgent, isLoading } = useChatStore();
+  const { isLoading } = useChatStore();
 
   return (
     <Box
@@ -25,8 +25,8 @@ export default function ChatContainer({ messages }: ChatContainerProps) {
     >
       <MessageManager
         messages={messages}
-        streamingContent={streamingContent}
-        streamingAgent={streamingAgent}
+        
+        
         isLoading={isLoading}
       />
     </Box>

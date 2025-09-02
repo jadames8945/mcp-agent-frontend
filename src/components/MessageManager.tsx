@@ -159,9 +159,9 @@ export default function MessageManager({
                 width: 36,
                 height: 36,
                 bgcolor: message.type === 'user' ? THEME.colors.primary : 
-                         message.type === 'progress' ? '#ff9800' : '#f8f9fa',
+                         '#f8f9fa',
                 color: message.type === 'user' ? 'white' : 
-                       message.type === 'progress' ? 'white' : THEME.colors.primary,
+                       THEME.colors.primary,
                 fontSize: '14px',
                 fontWeight: 600,
                 border:
@@ -173,7 +173,7 @@ export default function MessageManager({
               }}
             >
               {message.type === 'user' ? 'U' : 
-               message.type === 'progress' ? '⚡' : 'AI'}
+               'AI'}
             </Avatar>
             <Paper
               elevation={0}
@@ -186,8 +186,8 @@ export default function MessageManager({
                 borderRadius:
                   message.type === 'user'
                     ? '20px 20px 4px 20px'
-                    : message.type === 'progress'
-                    ? '12px'
+                    : false
+                    ? '20px 20px 20px 4px'
                     : '20px 20px 20px 4px',
                 boxShadow:
                   message.type === 'user'
@@ -245,7 +245,7 @@ export default function MessageManager({
                 >
                   {message.content}
                 </Typography>
-              ) : message.type === 'progress' ? (
+              ) : false ? (
                 <Box sx={{
                   fontSize: '15px',
                   lineHeight: '1.6',
@@ -259,18 +259,11 @@ export default function MessageManager({
                   border: '1px solid #ffcc02',
                 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                    {message.toolName && `🛠️ ${message.toolName}`}
+                    
                   </Typography>
                   <Typography variant="body2">
                     {message.content}
                   </Typography>
-                  {message.progressStep && message.totalSteps && (
-                    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="caption" sx={{ color: '#f57c00' }}>
-                        Progress: {message.progressStep} of {message.totalSteps}
-                      </Typography>
-                    </Box>
-                  )}
                 </Box>
               ) : (
                 <Box sx={{
@@ -281,7 +274,18 @@ export default function MessageManager({
                   color: '#2c3e50',
                   letterSpacing: '0.01em',
                 }}>
-                  <MarkdownMessage content={message.content} />
+                  {message.spinner && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+                      <CircularProgress size={18} sx={{ color: THEME.colors.primary }} />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "#666", fontSize: "13px", fontWeight: 500 }}
+                      >
+                        {message.content}
+                      </Typography>
+                    </Box>
+                  )}
+                  {!message.spinner && <MarkdownMessage content={message.content} />}
                 </Box>
               )}
               <Typography
@@ -381,63 +385,6 @@ export default function MessageManager({
         </Box>
       )}
 
-      {isLoading && !streamingContent && (
-        <Box sx={{ alignSelf: "flex-start", width: "100%" }}>
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-            <Avatar
-              sx={{
-                width: 36,
-                height: 36,
-                bgcolor: "#f8f9fa",
-                color: THEME.colors.primary,
-                fontSize: "14px",
-                fontWeight: 600,
-                border: `2px solid ${THEME.colors.primary}`,
-                boxShadow: "0 2px 8px rgba(0, 123, 255, 0.1)",
-              }}
-            >
-              AI
-            </Avatar>
-            <Paper
-              elevation={0}
-              sx={{
-                padding: 3,
-                backgroundColor: "white",
-                borderRadius: "20px 20px 20px 4px",
-                boxShadow: [
-                  "0 1px 3px rgba(0, 0, 0, 0.05)",
-                  "0 4px 12px rgba(0, 0, 0, 0.08)",
-                  "0 8px 24px rgba(0, 0, 0, 0.06)",
-                ].join(", "),
-                border: "1px solid rgba(0, 0, 0, 0.05)",
-                position: "relative",
-                "&::before": {
-                  content: '""',
-                  position: "absolute",
-                  left: "-8px",
-                  top: "12px",
-                  width: 0,
-                  height: 0,
-                  borderLeft: "8px solid transparent",
-                  borderRight: "8px solid transparent",
-                  borderTop: "8px solid white",
-                },
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <CircularProgress size={18} sx={{ color: THEME.colors.primary }} />
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#666", fontSize: "13px", fontWeight: 500 }}
-                >
-                  Generating content...
-                </Typography>
-              </Box>
-            </Paper>
-          </Box>
-        </Box>
-      )}
-
       <div ref={messagesEndRef} />
       
       {showScrollTop && (
@@ -466,4 +413,4 @@ export default function MessageManager({
       )}
     </Box>
   );
-} 
+}

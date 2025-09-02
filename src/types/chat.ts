@@ -1,12 +1,11 @@
 export interface Message {
   id: string;
   conversationId: string;
-  type: "user" | "assistant" | "progress";
+  type: "user" | "assistant";
   content: string;
   timestamp: Date;
-  progressStep?: number;
-  totalSteps?: number;
-  toolName?: string;
+  status?: "generating" | "starting" | "progress" | "complete";
+  spinner?: boolean;
 }
 
 export interface ChatHistoryItem {
@@ -22,4 +21,4 @@ export interface ChatState {
   chatHistories: ChatHistoryItem[];
   isLoading: boolean;
   error: string | null;
-} 
+}

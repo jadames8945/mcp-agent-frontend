@@ -35,8 +35,6 @@ export default function ChatPage() {
     error: chatError,
     setError: setChatError,
     clearError: clearChatError,
-    streamingContent,
-    streamingAgent,
     isLoading,
     setLoading,
     setConnected,
@@ -139,14 +137,6 @@ export default function ChatPage() {
       setLoading(false);
       return;
     }
-    
-    addMessage({
-      id: token,
-      conversationId: token,
-      content: message,
-      timestamp: new Date(),
-      type: 'user',
-    });
     
     try {
       wsSendMessage(message, selectedConfig);
@@ -256,8 +246,6 @@ export default function ChatPage() {
                     handleSendMessage(suggestion);
                   }
                 }}
-                streamingContent={streamingContent}
-                streamingAgent={streamingAgent}
                 isLoading={isLoading}
               />
             </Box>
@@ -301,4 +289,4 @@ export default function ChatPage() {
       </Box>
     </Box>
   );
-} 
+}

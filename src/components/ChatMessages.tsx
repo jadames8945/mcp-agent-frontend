@@ -9,7 +9,7 @@ interface ChatMessagesProps {
 }
 
 export default function ChatMessages({ messages }: ChatMessagesProps) {
-  const { streamingContent, streamingAgent, isLoading } = useChatStore();
+  const { isLoading } = useChatStore();
 
   return (
     <Box sx={{ 
@@ -24,8 +24,8 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
       <Box sx={{ flex: 1, overflow: 'auto', mb: 3 }}>
         <MessageManager
           messages={messages}
-          streamingContent={streamingContent}
-          streamingAgent={streamingAgent}
+          
+          
           isLoading={isLoading}
         />
       </Box>

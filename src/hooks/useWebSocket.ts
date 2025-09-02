@@ -6,7 +6,7 @@ import { mcpAPI } from '@/api/mcp';
 export default function useWebSocket(onMessage: (message: any) => void) {
   const wsRef = useRef<WebSocket | null>(null);
   const onMessageRef = useRef(onMessage);
-  const { setWebSocket, setConnected, setSessionId } = useChatStore();
+  const { setWebSocket, setConnected, setSessionId, setConversationId, addMessage, setLoading } = useChatStore();
 
   useEffect(() => {
     onMessageRef.current = onMessage;
@@ -82,8 +82,28 @@ export default function useWebSocket(onMessage: (message: any) => void) {
   const sendMessage = useCallback(
     (message: string, config: MultiMCPConfig) => {
       console.log('📤 Attempting to send message via WebSocket');
-      console.log('📤 WebSocket ref state:', wsRef.current?.readyState);
-      console.log('📤 WebSocket connected state:', useChatStore.getState().isConnected);
+      
+      const conversationId = `${Date.now()}`;
+      setConversationId(conversationId);
+      setLoading(true);
+      
+      addMessage({
+        id: `user_${Date.now()}`,
+        conversationId: '',
+        type: 'user',
+        content: message,
+        timestamp: new Date(),
+      });
+      
+      addMessage({
+        id: conversationId,
+        conversationId: conversationId,
+        type: 'assistant',
+        content: 'Generating content...',
+        status: 'generating',
+        spinner: true,
+        timestamp: new Date(),
+      });
       
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         const messageData = {
@@ -98,7 +118,7 @@ export default function useWebSocket(onMessage: (message: any) => void) {
         return false;
       }
     },
-    [],
+    [setConversationId, setLoading, addMessage],
   );
 
   useEffect(() => {
@@ -116,4 +136,4 @@ export default function useWebSocket(onMessage: (message: any) => void) {
     disconnect,
     sendMessage,
   };
-} 
+}
