@@ -11,6 +11,10 @@ export interface WebSocketMessage {
   status?: string;
   result_channel?: string;
   session_id?: string;
+  tool_name?: string;
+  progress_step?: number;
+  tool_len?: number;
+  message?: string;
 }
 
 export interface ChatInterfaceProps {

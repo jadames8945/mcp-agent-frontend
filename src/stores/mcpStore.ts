@@ -132,6 +132,7 @@ export const useMCPStore = create<MCPState>((set, get) => ({
       
       addMessage({
         id: Date.now().toString(),
+        conversationId: `mcp_${Date.now()}`,
         type: "assistant",
         content: content || "Tool execution completed successfully!",
         timestamp: new Date(),

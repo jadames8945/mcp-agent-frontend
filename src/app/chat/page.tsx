@@ -133,8 +133,16 @@ export default function ChatPage() {
     
     setLoading(true);
     
+    const token = localStorage.getItem('mcp_token');
+    if (!token) {
+      setChatError('No authentication token found');
+      setLoading(false);
+      return;
+    }
+    
     addMessage({
-      id: Date.now().toString(),
+      id: token,
+      conversationId: token,
       content: message,
       timestamp: new Date(),
       type: 'user',

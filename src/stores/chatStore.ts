@@ -12,6 +12,7 @@ interface ChatState {
   sessionId: string | null;
   
   addMessage: (message: Message) => void;
+  updateMessage: (conversationId: string, updates: Partial<Message>) => void;
   setConnected: (connected: boolean) => void;
   setSessionId: (sessionId: string | null) => void;
   setError: (error: string | null) => void;
@@ -44,6 +45,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
+  updateMessage: (conversationId: string, updates: Partial<Message>) => {
+    set((state) => ({
+      messages: state.messages.map(msg =>
+        msg.conversationId === conversationId ? { ...msg, ...updates } : msg
+      ),
+    }));
+  },
+
   setConnected: (connected: boolean) => {
     set({ isConnected: connected });
   },
@@ -61,7 +70,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       streamingContent,
       streamingAgent,
       addMessage,
+      updateMessage,
       setLoading,
+      sessionId,
     } = get();
 
     console.log('WebSocket message received:', message);
@@ -82,18 +93,48 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const content = streamingContent;
       const agentName = message.agent_name || '';
 
-      addMessage({
-        id: Date.now().toString(),
-        type: 'assistant',
-        content: content,
-        timestamp: new Date(),
-      });
+      if (sessionId) {
+        addMessage({
+          id: sessionId,
+          conversationId: sessionId,
+          type: 'assistant',
+          content: content,
+          timestamp: new Date(),
+        });
+      }
 
       set({ 
         streamingContent: '', 
         streamingAgent: '', 
         isLoading: false 
       });
+    } else if (message.progress === 'progress_update' && message.tool_name && message.progress_step && message.tool_len) {
+      const progressMessage = `Step ${message.progress_step} of ${message.tool_len}: ${message.tool_name}\n${message.message || ''}`;
+      
+      if (sessionId) {
+        const existingMessage = get().messages.find(msg => msg.conversationId === sessionId && msg.type === 'progress');
+        
+        if (existingMessage) {
+          updateMessage(existingMessage.conversationId, {
+            content: progressMessage,
+            progressStep: message.progress_step,
+            totalSteps: message.tool_len,
+            toolName: message.tool_name,
+            timestamp: new Date()
+          });
+        } else {
+          addMessage({
+            id: `progress_${Date.now()}`,
+            conversationId: sessionId,
+            type: 'progress',
+            content: progressMessage,
+            timestamp: new Date(),
+            progressStep: message.progress_step,
+            totalSteps: message.tool_len,
+            toolName: message.tool_name
+          });
+        }
+      }
     } else if (message.error) {
       set({ error: message.error, isLoading: false });
     }
@@ -163,6 +204,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     set({
       messages: [],
+      isConnected: false,
       error: null,
       isLoading: false,
       streamingContent: '',

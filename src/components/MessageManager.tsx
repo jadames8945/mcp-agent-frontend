@@ -158,8 +158,10 @@ export default function MessageManager({
               sx={{
                 width: 36,
                 height: 36,
-                bgcolor: message.type === 'user' ? THEME.colors.primary : '#f8f9fa',
-                color: message.type === 'user' ? 'white' : THEME.colors.primary,
+                bgcolor: message.type === 'user' ? THEME.colors.primary : 
+                         message.type === 'progress' ? '#ff9800' : '#f8f9fa',
+                color: message.type === 'user' ? 'white' : 
+                       message.type === 'progress' ? 'white' : THEME.colors.primary,
                 fontSize: '14px',
                 fontWeight: 600,
                 border:
@@ -170,7 +172,8 @@ export default function MessageManager({
                     : '0 2px 8px rgba(0, 123, 255, 0.1)',
               }}
             >
-              {message.type === 'user' ? 'U' : 'AI'}
+              {message.type === 'user' ? 'U' : 
+               message.type === 'progress' ? '⚡' : 'AI'}
             </Avatar>
             <Paper
               elevation={0}
@@ -183,6 +186,8 @@ export default function MessageManager({
                 borderRadius:
                   message.type === 'user'
                     ? '20px 20px 4px 20px'
+                    : message.type === 'progress'
+                    ? '12px'
                     : '20px 20px 20px 4px',
                 boxShadow:
                   message.type === 'user'
@@ -240,6 +245,33 @@ export default function MessageManager({
                 >
                   {message.content}
                 </Typography>
+              ) : message.type === 'progress' ? (
+                <Box sx={{
+                  fontSize: '15px',
+                  lineHeight: '1.6',
+                  fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
+                  fontWeight: 500,
+                  color: '#e65100',
+                  letterSpacing: '0.01em',
+                  backgroundColor: '#fff3e0',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #ffcc02',
+                }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                    {message.toolName && `🛠️ ${message.toolName}`}
+                  </Typography>
+                  <Typography variant="body2">
+                    {message.content}
+                  </Typography>
+                  {message.progressStep && message.totalSteps && (
+                    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="caption" sx={{ color: '#f57c00' }}>
+                        Progress: {message.progressStep} of {message.totalSteps}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               ) : (
                 <Box sx={{
                   fontSize: '15px',

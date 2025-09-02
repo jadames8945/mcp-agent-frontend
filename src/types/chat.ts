@@ -1,8 +1,12 @@
 export interface Message {
   id: string;
-  type: "user" | "assistant";
+  conversationId: string;
+  type: "user" | "assistant" | "progress";
   content: string;
   timestamp: Date;
+  progressStep?: number;
+  totalSteps?: number;
+  toolName?: string;
 }
 
 export interface ChatHistoryItem {
