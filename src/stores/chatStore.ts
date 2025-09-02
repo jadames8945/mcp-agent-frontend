@@ -70,17 +70,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { conversationId, updateMessage, setLoading, setConversationId } = get();
 
     if (message.progress === 'started') {
-      if (conversationId) {
-        updateMessage(conversationId, {
-          content: 'Initiating...',
-          status: 'starting',
-          spinner: true
-        });
-      }
     } else if (message.progress === 'streaming' && message.chunk) {
       if (conversationId) {
         const currentMessage = get().messages.find(msg => msg.conversationId === conversationId);
-        const newContent = (currentMessage?.content || '') + message.chunk;
+        const newContent = message.chunk;
         updateMessage(conversationId, {
           content: newContent,
           status: 'progress',
@@ -89,7 +82,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
     } else if (message.progress === 'progress_update') {
       if (conversationId) {
-        const progressMessage = `Step ${message.progress_step || ''} of ${message.tool_len || ''}: ${message.tool_name || ''}\n${message.message || ''}`;
+        const progressMessage = message.chunk || "Progress update";
         updateMessage(conversationId, {
           content: progressMessage,
           status: 'progress',
