@@ -73,7 +73,7 @@ export default function ChatPage() {
       
       if (token) {
         try {
-          connect(token, selectedConfig);
+          connect(selectedConfig);
           console.log('✅ WebSocket connect() called');
           fetchTools();
         } catch (error) {

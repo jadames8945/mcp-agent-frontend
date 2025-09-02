@@ -12,13 +12,13 @@ export default function useWebSocket(onMessage: (message: any) => void) {
     onMessageRef.current = onMessage;
   }, [onMessage]);
 
-  const connect = useCallback((sessionId: string, config: MultiMCPConfig) => {
+  const connect = useCallback((config: MultiMCPConfig) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
 
     try {
-      const url = mcpAPI.getWebSocketUrl(sessionId);
+      const url = mcpAPI.getWebSocketUrl();
       console.log('Connecting to WebSocket URL:', url);
       
       const websocket = new WebSocket(url);
@@ -26,7 +26,6 @@ export default function useWebSocket(onMessage: (message: any) => void) {
       websocket.onopen = () => {
         console.log('✅ WebSocket connected successfully');
         setConnected(true);
-        setSessionId(sessionId);
         setWebSocket(websocket);
         wsRef.current = websocket;
       };
@@ -35,6 +34,10 @@ export default function useWebSocket(onMessage: (message: any) => void) {
         try {
           const message = JSON.parse(event.data);
           console.log('📨 WebSocket message received:', message);
+
+          if (message.type === 'session_established') {
+            setSessionId(message.session_id);
+          }
           
           onMessageRef.current(message);
         } catch (err) {
@@ -51,7 +54,7 @@ export default function useWebSocket(onMessage: (message: any) => void) {
         if (event.code !== 1000 && event.code !== 1001) {
           console.log('🔄 Attempting to reconnect in 3 seconds...');
           setTimeout(() => {
-            connect(sessionId, config);
+            connect(config);
           }, 3000);
         }
       };

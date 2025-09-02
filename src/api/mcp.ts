@@ -18,8 +18,8 @@ export const mcpAPI = {
     return response.json();
   },
 
-  getWebSocketUrl(sessionId: string): string {
-    return `${BASE_URL.replace('http', 'ws')}/tool-summary/ws/${sessionId}`;
+  getWebSocketUrl(): string {
+    return `${BASE_URL.replace('http', 'ws')}/tool-summary/ws`;
   },
 
   getChatWebSocketUrl(sessionId: string): string {
